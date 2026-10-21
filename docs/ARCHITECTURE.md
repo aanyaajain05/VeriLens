@@ -75,7 +75,7 @@ Response (returned by the backend):
 Field rules:
 
 - `label` is one of `likely_ai`, `likely_human`, or `uncertain`.
-- `ai_likelihood` is a number from 0 to 1.
+- `ai_likelihood` is a number from 0 to 1, or `null` when no analysis was done (for example, when the text is too short or no model is connected).
 - `reasons` are derived from measured text features, not written by a language model.
 - `limitations` always contains the short notice from the requirements.
 - `model_version` is always included, so every result can be traced to a logged experiment run.
