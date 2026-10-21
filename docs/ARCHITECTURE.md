@@ -8,7 +8,7 @@ A user selects text on a web page. The browser extension sends it to the VeriLen
 
 ```
 Web page
-  |  (content script reads the selected text)
+  |    |  (the context-menu click hands over the selected text)
   v
 Extension service worker --HTTPS POST /analyze/text--> FastAPI backend (Docker)
   ^                                                         |
@@ -32,6 +32,12 @@ Colab/Kaggle training --> MLflow run log --> Model registry --> Docker image -->
                                ^                                      ^
                         Evaluation harness                    GitHub Actions CI/CD
 ```
+
+Notes:
+
+- The selected text comes from the right-click menu event, so no content script is needed.
+- The result panel is drawn into the page by the service worker, using the `activeTab` and `scripting` permissions, so the extension only touches a page when the user asks it to.
+- During development the extension may only contact `http://127.0.0.1:8000`. This will change to the deployed HTTPS address later.
 
 ## 4. Design Decisions
 
