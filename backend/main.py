@@ -1,9 +1,12 @@
+from pathlib import Path
+import joblib
 from typing import Literal, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-MODEL_VERSION = "placeholder-0.0"
+MODEL_VERSION = "tfidf-logreg-0.1"
+model = joblib.load(Path(__file__).parent / "model.joblib")
 LIMITATIONS = (
     "This is an estimate, not proof. "
     "Results can be wrong, especially for short or edited text."
@@ -35,12 +38,17 @@ def health():
 
 @app.post("/analyze/text", response_model=AnalysisResult)
 def analyze_text(request: TextRequest):
-    # Detection logic will be implemented and evaluated separately.
-    # Until then, we honestly report that we cannot tell.
+    p = float(model.predict_proba([request.text])[0][1])
+    if p >= 0.65:
+        label = "likely_ai"
+    elif p <= 0.40:
+        label = "likely_human"
+    else:
+        label = "uncertain"
     return AnalysisResult(
-        label="uncertain",
-        ai_likelihood=None,
-        reasons=["No detection model is connected yet."],
+        label=label,
+        ai_likelihood=round(p, 2),
+        reasons=[f"Text-style classifier scored this {p:.0%} likely AI-generated."],
         limitations=LIMITATIONS,
         model_version=MODEL_VERSION,
     )
